@@ -33,10 +33,12 @@ function Edit({ auth, mustVerifyEmail, status }) {
 }
 Edit.layout = (page)=>{
     return(
-        <AuthenticatedLayout>
+        <AuthenticatedLayout
         user={page.props.auth.user}
-header={<h2 className = "font-semibold text=xl text-gray-800 dark:text-gray-200 leading-tight">Profile</h2>}
-            </AuthenticatedLayout>
+header={<h2 className = "font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Profile</h2>}
+          >
+            {page}
+              </AuthenticatedLayout>
     );
 }
 
