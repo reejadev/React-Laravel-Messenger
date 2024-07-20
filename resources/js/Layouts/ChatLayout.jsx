@@ -1,7 +1,9 @@
-// import { PencilSquareIcon } from '@heroicons/react/solid';
-
+import { PencilAltIcon } from '@heroicons/react/solid';
+import  TextInput  from "@/Components/TextInput"; 
 import { usePage } from "@inertiajs/react"; 
 import { useEffect, useState } from "react";
+import ConversationItem from '@/Components/App/ConversationItem';
+
 const ChatLayout = ({ children})=>{
     const page = usePage();
     const conversations = page.props.conversations;
@@ -28,30 +30,28 @@ const ChatLayout = ({ children})=>{
     }
 
 
-    useEffect(()=>{
-        setSortedConversations(
-            localConversations.sort((a,b)=>{
-                if(a.blocked_at && b.blocked_at){
-                    return a.blocked_at > b.blocked_at ? 1: -1;
-                }else if (a.blocked_at) {
-                    return 1;
-                } else if(b.blocked_at) {
-                    return -1;
-                }
-                if(a.last_message_date && b.last_message.date){
-                    return b.last_message_date.localeCompare(
-                        a.last_message_date
-                    );
-                }else if (a.last_message_date) {
-                    return -1;
-                }else if (b.last_message_date){
-                    return 1;
-                }else{
-                    return 0;
-                }
-            })
-        
-        );
+
+            useEffect(() => {
+                setSortedConversations(
+                    localConversations.sort((a, b) => {
+                        if (a.blocked_at && b.blocked_at) {
+                            return a.blocked_at > b.blocked_at ? 1 : -1;
+                        } else if (a.blocked_at) {
+                            return 1;
+                        } else if (b.blocked_at) {
+                            return -1;
+                        }
+                        if (a.last_message_date && b.last_message_date) {
+                            return b.last_message_date.localeCompare(a.last_message_date);
+                        } else if (a.last_message_date) {
+                            return -1;
+                        } else if (b.last_message_date) {
+                            return 1;
+                        } else {
+                            return 0;
+                        }
+                    })
+                );
             }, [localConversations]);
 
             
@@ -105,13 +105,14 @@ return(
                         flex flex-col overflow-hidden ${
                             selectedConversation? "-ml-[100%] sm:ml-0" : ""
                         }`}> 
-<div className="flex items-center justify-between py-2 px-3 text-xl font-medium">
+<div className="flex items-center text-gray-200 justify-between py-2 px-3 text-xl font-medium">
     My Conversations
 
 <div className="tooltip bs-tooltip-left" data-tip="Create new Group">
 
     <button className="text-gray-400 hover:text-gray-200">
-            {/* <PencilSquareIcon className="w-4 h-4 inline-block ml-2"/> */}
+    <PencilAltIcon className="w-4 h-4 inline-block ml-2" />
+           
 
     </button>
 </div>
@@ -128,7 +129,7 @@ return(
             
             {sortedConversations && 
                 sortedConversations.map((conversation)=>(
-                    <ConvesationItem
+                    <ConversationItem
                       key={`${conversation.is_group
                         ?"group_"
                         :"user_"

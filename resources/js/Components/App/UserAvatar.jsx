@@ -7,7 +7,7 @@ const UserAvatar =({user,online=null, profile = false})=>{
     return (
         <>
         {user.avatar_url && (
-            <div className={`that-image avatar ${onlineClass}`}>
+            <div className={`chat-image avatar ${onlineClass}`}>
                 <div className="{`rounded-full ${sizeClass}`}">
                     <img src={user.avatar_url}/>
                 </div>
@@ -19,7 +19,7 @@ const UserAvatar =({user,online=null, profile = false})=>{
     className={`bg-gray-400 text-gray-800 rounded-full ${sizeClass}`}>
         <span className="text-xl">
             {user.name.substring(0,1)}
-        </span>
+        </span> 
     </div>
 </div>
             )}

@@ -1,82 +1,118 @@
-import {Link, usePage} from "@inertiajs/react";
-import UserAvatar from "./UserAvatar";
-import GroupAvatar from "./GroupAvatar";
-import UserOptionsDropdown from "./UserOptionsDropdown";
+import { Menu, Transition } from "@headlessui/react";
+import { Fragment } from "react";
+import {
+    DotsVerticalIcon,
+    LockClosedIcon,
+    LockOpenIcon,
+    ShieldCheckIcon,
+    UserIcon,
+} from "@heroicons/react/solid";
+import axios from 'axios';
+// import { route } from '@inertiajs/react';
 
-const ConvesationItem = ({
-    conversation,
-    selectedConversation = null,
-    online = null,
-}) => {
-    const page = usePage();
-    const currentUser = page.props.auth.user;
-    let classes = "border-transparent";
-    if (!selectedConversation.is_group
-        &&!conversation.is_group &&
-        selectedConversation.id == conversation.id
-    ){
- classes = "border-blue-500 bg-black/20";
-    }
-    if(
-        selectedConversation.is_group &&
-        conversation.is_group &&
-        selectedConversation.id == conversation.id
-    ){
-classes = "border-blue-500 bg-black/20";
-    }
+export default function UserOptionsDropdown({ conversation }) {
+    const changeUserRole = () => {
+        console.log("Change user role");
+        if (!conversation.is_user) {
+            return;
+        }
+
+        axios
+            .post(route("user.changeRole", conversation.id))
+            .then((res) => {
+                console.log(res.data);
+            })
+            .catch((err) => {
+                console.error(err);
+            });
+    };
+
+    const onBlockUser = () => {
+        console.log("Block user");
+        if (!conversation.is_user) {
+            return;
+        }
+        axios
+            .post(route("user.blockUnblock", conversation.id))
+            .then((res) => {
+                console.log(res.data);
+            })
+            .catch((err) => {
+                console.error(err);
+            });
+    };
+
     return (
-<Link 
-href={
-    conversation.is_group
-    ? route("chat.group",conversation)
-    : route("chat.group",conversation)
-}
-preserveState
-className={
-    "conversation-item flex items-center gap-2 p-2 text-gray-300 transition-all cursor-pointer border-1-4 hover:bg-black/30"
-    +classes +
-    (conversation.is_user && currentUser.is_admin
-        ?" pr-2"
-        :" pr-4")
-    
-}
->
-{
-    conversation.is_user && (
-        <UserAvatar user={conversation} online={online} />
-    )}
-
-{conversation.is_group && <GroupAvatar/>}
-<div
-className={
-    `flex-1 text-xs max-w-full overflow-hidden`
-    +(conversation.is_user && conversation.blocked_at ? "opacity-50"
-        :"")
-    
-    }
->
-    <div className="flex gap-1 justify-between items-center">
-<h3 className="text-sm font-semibold overflow-hidden text-nowrap
-text-ellipsis">
-    {conversation.name}
-</h3>
-
-{conversation.last_message_date && (
-    <span className="text-nowrap">{conversation.last_message_date}</span>
-)}
-
-    </div>
-
-    {conversation.last_message && (
-        <p className="text-xs text-nowrap overflow-hidden text-ellipsis">
-            {conversation.last_message}
-        </p>
-    )}
-</div>
-{currentUser.is_admin && conversation.is_user && (
-    <UserOptionsDropdown conversation={conversation} />
-)}
-</Link>
+        <div>
+            <Menu as="div" className="relative inline-block text-left">
+                <div>
+                    <Menu.Button className="flex justify-center items-center w-8 h-8 rounded-full hover:bg-black/40">
+                        <DotsVerticalIcon className="h-5 w-5" />
+                    </Menu.Button>
+                </div>
+                <Transition
+                    as={Fragment}
+                    enter="transition ease-out duration-100"
+                    enterFrom="transform opacity-0 scale-95"
+                    enterTo="transform opacity-100 scale-100"
+                    leave="transition ease-in duration-75"
+                    leaveFrom="transform opacity-100 scale-100"
+                    leaveTo="transform opacity-0 scale-95"
+                >
+                    <Menu.Items className="absolute right-0 mt-2 w-48 rounded-md bg-gray-800 shadow-lg z-50">
+                        <div className="px-1 py-1">
+                            <Menu.Item>
+                                {({ active }) => (
+                                    <button
+                                        onClick={onBlockUser}
+                                        className={`${
+                                            active ? "bg-black/30 text-white" : "text-gray-100"
+                                        } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
+                                    >
+                                        {conversation.blocked_at && (
+                                            <>
+                                                <LockOpenIcon className="w-4 h-4 mr-2" />
+                                                Unblock User
+                                            </>
+                                        )}
+                                        {!conversation.blocked_at && (
+                                            <>
+                                                <LockClosedIcon className="w-4 h-4 mr-2" />
+                                                Block User
+                                            </>
+                                        )}
+                                    </button>
+                                )}
+                            </Menu.Item>
+                        </div>
+                        <div className="px-1 py-1">
+                            <Menu.Item>
+                                {({ active }) => (
+                                    <button
+                                        onClick={changeUserRole}
+                                        className={`${
+                                            active ? "bg-black/30 text-white" : "text-gray-100"
+                                        } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
+                                    >
+                                        {conversation.is_admin && (
+                                            <>
+                                                <UserIcon className="w-4 h-4 mr-2" />
+                                                Make Regular User
+                                            </>
+                                        )}
+                                        {!conversation.is_admin && (
+                                            <>
+                                                <ShieldCheckIcon className="w-4 h-4 mr-2" />
+                                                Make Admin
+                                            </>
+                                        )}
+                                    </button>
+                                )}
+                            </Menu.Item>
+                        </div>
+                    </Menu.Items>
+                </Transition>
+            </Menu>
+        </div>
     );
-};
-export default ConvesationItem;
+}
