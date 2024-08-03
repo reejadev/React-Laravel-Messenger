@@ -24,9 +24,9 @@ class UserResource extends JsonResource
             'email'=>$this->email,
             'created_at'=>$this->created_at,
               'updated_at'=>$this->updated_at,
-                'is_admin'=>(bool)$this->is_admin,
-                'last_message'=>$this->last_message,
-                'last_message_date'=>$this->last_message_date,
+              'isAdmin' => (bool) $this->is_admin,
+              'lastMessage' => $this->last_message,
+              'lastMessageDate' => $this->last_message_date,
         ];
     }
 }

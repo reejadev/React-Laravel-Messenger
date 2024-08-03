@@ -102,7 +102,7 @@ return $this->belongsToMany(Group::class, 'group_users', 'user_id', 'group_id');
             'updated_at'=> $this->updated_at,
             'blocked_at'=> $this->blocked_at,
             'last_message'=> $this->last_message,
-            'last_message_date'=> $this->last_message_date,
+            'last_message_date'=> $this->last_message_date ? ($this->last_message_date):null,
         ];
     }
 

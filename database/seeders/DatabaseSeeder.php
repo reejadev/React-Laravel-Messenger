@@ -21,7 +21,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'John Doe',
             'email' => 'john@example.com',
             'password' => bcrypt('password'),
-            'is_admin' => true,
+            //'is_admin' => true,
         ]);
         User::factory()->create([
           'name' => 'Jane Doe',
@@ -47,7 +47,7 @@ class DatabaseSeeder extends Seeder
 
         // Attempt to create messages
         
-            Message::factory(10)->create();
+            Message::factory(1000)->create();
        
     
              $messages = Message::whereNull('group_id')->orderBy('created_at')->get();

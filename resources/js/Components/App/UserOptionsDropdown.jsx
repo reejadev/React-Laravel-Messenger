@@ -1,13 +1,14 @@
 import { Menu, Transition } from "@headlessui/react";
 import { Fragment } from "react";
 import {
-    DotsVerticalIcon,
-    LockClosedIcon,
-    LockOpenIcon,
-    ShieldCheckIcon,
-    UserIcon,
+    // DotsVerticalIcon,
+    // LockClosedIcon,
+    // LockOpenIcon,
+    // ShieldCheckIcon,
+    // UserIcon,
 } from "@heroicons/react/solid";
 import axios from 'axios';
+import { ArrowLongDownIcon, ArrowUpIcon, EllipsisVerticalIcon, ShieldExclamationIcon, UserCircleIcon } from "@heroicons/react/24/solid";
 // import { route } from '@inertiajs/react';
 
 export default function UserOptionsDropdown({ conversation }) {
@@ -47,7 +48,7 @@ export default function UserOptionsDropdown({ conversation }) {
             <Menu as="div" className="relative inline-block text-left">
                 <div>
                     <Menu.Button className="flex justify-center items-center w-8 h-8 rounded-full hover:bg-black/40">
-                        <DotsVerticalIcon className="h-5 w-5" />
+                        <EllipsisVerticalIcon className="h-5 w-5" />
                     </Menu.Button>
                 </div>
                 <Transition
@@ -71,13 +72,13 @@ export default function UserOptionsDropdown({ conversation }) {
                                     >
                                         {conversation.blocked_at && (
                                             <>
-                                                <LockOpenIcon className="w-4 h-4 mr-2" />
+                                                <ArrowUpIcon className="w-4 h-4 mr-2" />
                                                 Unblock User
                                             </>
                                         )}
                                         {!conversation.blocked_at && (
                                             <>
-                                                <LockClosedIcon className="w-4 h-4 mr-2" />
+                                                <ArrowLongDownIcon className="w-4 h-4 mr-2" />
                                                 Block User
                                             </>
                                         )}
@@ -96,13 +97,13 @@ export default function UserOptionsDropdown({ conversation }) {
                                     >
                                         {conversation.is_admin && (
                                             <>
-                                                <UserIcon className="w-4 h-4 mr-2" />
+                                                <UserCircleIcon className="w-4 h-4 mr-2" />
                                                 Make Regular User
                                             </>
                                         )}
                                         {!conversation.is_admin && (
                                             <>
-                                                <ShieldCheckIcon className="w-4 h-4 mr-2" />
+                                                <ShieldExclamationIcon className="w-4 h-4 mr-2" />
                                                 Make Admin
                                             </>
                                         )}
