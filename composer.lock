@@ -9596,7 +9596,7 @@
                     "src/"
                 ]
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "notification-url": "https://packagist.org/s/",
             "license": [
                 "BSD-3-Clause"
             ],

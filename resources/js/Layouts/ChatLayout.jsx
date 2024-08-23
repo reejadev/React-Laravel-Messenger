@@ -30,6 +30,7 @@ const ChatLayout = ({ children})=>{
             })
         );
     }
+    
 const messageCreated = (message) => {
     setLocalConversations((oldUsers) => {
         return oldUsers.map((u) => {
@@ -56,10 +57,23 @@ const messageCreated = (message) => {
     });
 };
 
+const messageDeleted = ({prevMessage}) => {
+    debugger;
+    if(!prevMessage) {
+        return;
+    }
+
+messageCreated(prevMessage);
+    }
+
 useEffect(()=>{
     const offCreated = on("message.created", messageCreated);
+    const offDeleted = on("message.deleted", messageDeleted);
+
+
     return() =>{
         offCreated();
+        offDeleted();
     };
 
 }, []);

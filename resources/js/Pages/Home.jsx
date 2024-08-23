@@ -7,6 +7,7 @@ import { ChatBubbleLeftRightIcon } from '@heroicons/react/24/solid';
 import MessageInput from '@/Components/App/MessageInput';
 import { useEventBus } from '@/EventBus';
 import axios from 'axios';
+import AttachmentPreviewModal from '@/Components/App/AttachmentPreviewModal';
 
 function Home({ selectedConversation = null, messages = null }) {
     const [localMessages, setLocalMessages] = useState([]);
@@ -14,6 +15,8 @@ function Home({ selectedConversation = null, messages = null }) {
     const [scrollFromBottom, setScrollFromBottom] = useState(0);
     const loadMoreIntersect = useRef(null);
     const messagesCtrRef = useRef(null);
+    const [showAttachmentPreview, setShowAttachmentPreview] = useState(false);
+    const [previewAttachment, setPreviewAttachment] = useState({});
     const {on} = useEventBus();
 
 
@@ -36,6 +39,31 @@ function Home({ selectedConversation = null, messages = null }) {
         ) {
             console.log('Adding message to user conversation:', selectedConversation.id);
             setLocalMessages((prevMessages) => [...prevMessages, message]);
+        }
+    };
+
+    const messageDeleted = ({message}) => {
+
+        if (
+            selectedConversation &&
+            selectedConversation.is_group &&
+            selectedConversation.id == message.group_id
+        ) {
+         
+            setLocalMessages((prevMessages) => {
+                return prevMessages.filter((m) => m.id !== message.id);
+            });
+        }
+        if (
+            selectedConversation &&
+            selectedConversation.is_user &&
+            (selectedConversation.id == message.sender_id || 
+                selectedConversation.id == message.receiver_id)
+        ) {
+            
+            setLocalMessages((prevMessages) => {
+                 return prevMessages.filter((m) => m.id !== message.id);
+                });
         }
     };
 
@@ -67,6 +95,14 @@ if(noMoreMessages){
         });
 }, [localMessages, noMoreMessages]);
 
+const onAttachmentClick = (attachments, ind)=>{
+    setPreviewAttachment({
+        attachments,
+        ind,
+    });
+    setShowAttachmentPreview(true);
+};
+
     useEffect(() => {
         setTimeout(() => {
             if(messagesCtrRef.current){
@@ -76,12 +112,14 @@ if(noMoreMessages){
         }, 10);
 
        const offCreated = on('message.created', messageCreated);
+       const offDeleted = on('message.deleted', messageDeleted);
 
        setScrollFromBottom(0);
        setNoMoreMessages(false);
 
        return() =>{
         offCreated();
+        offDeleted();
        };  
     }, [selectedConversation]);
 
@@ -148,7 +186,10 @@ if(noMoreMessages){
                             <div className="flex-1 flex flex-col">
                                 <div ref = {loadMoreIntersect}></div>
                                 {localMessages.map((message) => (
-                                    <MessageItem key={message.id} message={message} />
+                                    <MessageItem
+                                     key={message.id} 
+                                     message={message}
+                                     attachmentClick={onAttachmentClick} />
                                 ))}
                             </div>
                         )}
@@ -157,6 +198,15 @@ if(noMoreMessages){
                         <MessageInput conversation={selectedConversation} />
                     </div>
                 </div>
+            )}
+
+            {previewAttachment.attachments && (
+                <AttachmentPreviewModal
+                attachments={previewAttachment.attachments}
+                index={previewAttachment.ind}
+                show={showAttachmentPreview}
+                onClose={() => setShowAttachmentPreview(false)}
+                />
             )}
         </>
     );

@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import ApplicationLogo from '@/Components/ApplicationLogo';
 import Dropdown from '@/Components/Dropdown';
@@ -5,6 +6,8 @@ import NavLink from '@/Components/NavLink';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import { Link, usePage } from '@inertiajs/react';
 import { useEventBus } from '@/EventBus';
+import Toast from '@/Components/App/Toast';
+import NewMessageNotification from '@/Components/App/NewMessageNotification';
 
 export default function Authenticated({ header, children }) {
     const page = usePage();
@@ -12,7 +15,7 @@ export default function Authenticated({ header, children }) {
     const conversations = page.props.conversations;
 
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
-    const { emit } = useEventBus();
+  const { emit } = useEventBus();
 
     useEffect(() => {
         conversations.forEach((conversation) => {
@@ -52,8 +55,7 @@ export default function Authenticated({ header, children }) {
                                 message.attachments.length === 1
                                 ? "an attachment"
                                 : message.attachments.length + 
-                                " attachments"
-                            }`,
+                                " attachments"}`,
                     });
                 });
         });
@@ -78,6 +80,7 @@ export default function Authenticated({ header, children }) {
     }, [conversations, user, emit]);
 
     return (
+        <>
         <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex flex-col h-screen">
             <nav className="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -190,5 +193,10 @@ export default function Authenticated({ header, children }) {
 
             {children}
         </div>
+
+        <Toast/>
+        <NewMessageNotification/>
+        </>
     );
 }
+
