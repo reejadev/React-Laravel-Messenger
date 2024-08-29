@@ -15,7 +15,7 @@ export default function Authenticated({ header, children }) {
     const conversations = page.props.conversations;
 
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
-  const { emit } = useEventBus();
+//   const { emit } = useEventBus();
 
     useEffect(() => {
         conversations.forEach((conversation) => {

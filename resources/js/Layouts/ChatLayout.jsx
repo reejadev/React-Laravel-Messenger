@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import ConversationItem from '@/Components/App/ConversationItem';
 import { PencilIcon } from '@heroicons/react/24/solid';
 import { useEventBus } from "@/EventBus";
+import GroupModal from "@/Components/App/GroupModal";
 
 const ChatLayout = ({ children})=>{
     const page = usePage();
@@ -12,6 +13,7 @@ const ChatLayout = ({ children})=>{
     const selectedConversation = page.props.selectedConversation;
     const [localConversations, setLocalConversations] = useState([]);
     const [sortedConversations, setSortedConversations] = useState([]);
+    const [showGroupModal, setShowGroupModal] = useState(false);
     const {on} = useEventBus();
 
     const[onlineUsers, setOnlineUsers] = useState({});
@@ -58,7 +60,7 @@ const messageCreated = (message) => {
 };
 
 const messageDeleted = ({prevMessage}) => {
-    debugger;
+   
     if(!prevMessage) {
         return;
     }
@@ -69,11 +71,15 @@ messageCreated(prevMessage);
 useEffect(()=>{
     const offCreated = on("message.created", messageCreated);
     const offDeleted = on("message.deleted", messageDeleted);
+    const offModalShow = on("GroupModal.show", (group) => {
+        setShowGroupModal(true);
+    });
 
 
     return() =>{
         offCreated();
         offDeleted();
+        offModalShow();
     };
 
 }, []);
@@ -155,9 +161,10 @@ return(
 <div className="flex items-center text-gray-200 justify-between py-2 px-3 text-xl font-medium">
     My Conversations
 
-<div className="tooltip bs-tooltip-left" data-tip="Create new Group">
+<div className="tooltip items-center bs-tooltip-right" data-tip="Create new Group">
 
-    <button className="text-gray-400 hover:text-gray-200">
+    <button onClick={(ev) => setShowGroupModal(true) }
+     className="text-gray-400 hover:text-gray-200">
     <PencilIcon className="w-4 h-4 inline-block ml-2" />
            
 
@@ -193,6 +200,11 @@ return(
 
             </div>
         </div>
+        <GroupModal
+            show={showGroupModal}
+            onClose={() => setShowGroupModal(false)}
+        
+        />
     </>
 );
 
