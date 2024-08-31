@@ -8,14 +8,17 @@ import { Link, usePage } from '@inertiajs/react';
 import { useEventBus } from '@/EventBus';
 import Toast from '@/Components/App/Toast';
 import NewMessageNotification from '@/Components/App/NewMessageNotification';
+import { UserPlusIcon } from '@heroicons/react/24/solid';
+import PrimaryButton from "@/Components/PrimaryButton";
+import NewUserModal from "@/Components/NewUserModal";
 
 export default function Authenticated({ header, children }) {
     const page = usePage();
     const user = page.props.auth.user;
     const conversations = page.props.conversations;
-
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
-//   const { emit } = useEventBus();
+    const [showNewUserModal, setShowNewUserModal] = useState(false);
+    const { emit } = useEventBus();
 
     useEffect(() => {
         conversations.forEach((conversation) => {
@@ -30,7 +33,7 @@ export default function Authenticated({ header, children }) {
                 .join("-")}`;
             }
 
-            console.log(`Subscribing to channel: ${channel}`);
+           // console.log(`Subscribing to channel: ${channel}`);
 
             Echo.private(channel)
                 .error((error) => {
@@ -58,6 +61,20 @@ export default function Authenticated({ header, children }) {
                                 " attachments"}`,
                     });
                 });
+
+                if(conversation.is_group) {
+                    Echo.private(`group.deleted.${conversation.id}`).stopListening('GroupDeleted');
+
+                    Echo.private(`group.deleted.${conversation.id}`)
+                    .listen("GroupDeleted", (e) => {
+                        // console.log("GroupDeleted", e);
+                        // debugger;
+                        emit("group.deleted", {id: e.id, name: e.name});
+                    })
+                    .error((e) => {
+                        console.error(e);
+                    });
+                }
         });
 
         return () => {
@@ -75,6 +92,10 @@ export default function Authenticated({ header, children }) {
 
                 console.log(`Leaving channel: ${channel}`);
                 Echo.leave(channel);
+
+                if(conversation.is_group){
+                    Echo.leave(`group.deleted.${conversation.id}`);
+                }
             });
         };
     }, [conversations, user, emit]);
@@ -100,7 +121,19 @@ export default function Authenticated({ header, children }) {
                         </div>
 
                         <div className="hidden sm:flex sm:items-center sm:ms-6">
-                            <div className="ms-3 relative">
+                            <div className="flex ms-3 relative">
+
+                            {!user.is_admin && (
+                               
+                              <PrimaryButton onClick={(ev) =>
+                               setShowNewUserModal(true)}>
+                              <UserPlusIcon className=" h-5 w-5 mr-2"/>
+                                Add New User
+                           
+                              </PrimaryButton>      
+                            )}
+
+
                                 <Dropdown>
                                     <Dropdown.Trigger>
                                         <span className="inline-flex rounded-md">
@@ -196,6 +229,8 @@ export default function Authenticated({ header, children }) {
 
         <Toast/>
         <NewMessageNotification/>
+        <NewUserModal show={showNewUserModal} 
+        onClose={(ev) => setShowNewUserModal(false)}/>
         </>
     );
 }

@@ -1,5 +1,5 @@
 import { Fragment, useState } from "react";
-import { Combobox, ComboboxInput, Transition } from "@headlessui/react";
+import { Combobox, ComboboxOptions,ComboboxOption,ComboboxButton, ComboboxInput, Transition } from "@headlessui/react";
 import {CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 
 export default function UserPicker({value, options, onSelect}) {
@@ -122,11 +122,11 @@ ring-black/5 focus:outline-none sm:text-sm">
 
         </Combobox>
         {selected && (
-            <div className="flex gap-2 mt-3">
+            <div className="flex flex-wrap gap-2 mt-3">
                 {selected.map((person) => (
                     <div
                     key={person.id}
-                    className="badge badge-primary gap-2"
+                    className="badge badge-primary mt-3 gap-2"
                     >
                         {person.name}
                     </div>

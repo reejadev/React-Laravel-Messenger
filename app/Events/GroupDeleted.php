@@ -20,17 +20,12 @@ class GroupDeleted implements ShouldBroadcastNow
     /**
      * Create a new event instance.
      */
-    public function __construct(public Group $group)
+    public function __construct(public int $id, public string $name)
     {
         //
     }
 
-    public function broadcastWith()
-    {
-        return[
-            'group' => new GroupResource($this->group)
-        ];
-    }
+
 
     /**
      * Get the channels the event should broadcast on.
@@ -40,7 +35,7 @@ class GroupDeleted implements ShouldBroadcastNow
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('group.deleted.'.$this->group->id),
+            new PrivateChannel('group.deleted.'.$this->id),
         ];
     }
 }

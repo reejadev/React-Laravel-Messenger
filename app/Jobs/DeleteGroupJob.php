@@ -28,7 +28,8 @@ class DeleteGroupJob implements ShouldQueue
     public function handle(): void
     {
 
-      
+      $id = $this->group->id;
+      $name = $this->group->name;
 
       $this->group->last_message_id = null;
       $this->group->save();
@@ -39,8 +40,8 @@ class DeleteGroupJob implements ShouldQueue
 
       $this->group->delete();
 
-      dd('Group deleted', $this->group);
 
-      GroupDeleted::dispatch($this->group);
+
+      GroupDeleted::dispatch($id, $name);
     }
 }

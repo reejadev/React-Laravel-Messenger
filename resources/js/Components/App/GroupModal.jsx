@@ -73,7 +73,7 @@ useEffect(() => {
         >
             <h2 className="text-xl font-medium text-gray-900 dark:text-gray-100">
                 {group.id 
-                    ?`Edit Group "$(group.name)"`
+                    ?`Edit Group "${group.name}"`
                     : "Create new Group"
                 }
             </h2>
