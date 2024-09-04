@@ -10,95 +10,92 @@ import Toast from '@/Components/App/Toast';
 import NewMessageNotification from '@/Components/App/NewMessageNotification';
 import { UserPlusIcon } from '@heroicons/react/24/solid';
 import PrimaryButton from "@/Components/PrimaryButton";
-import NewUserModal from "@/Components/NewUserModal";
+// import NewUserModal from "@/Components/NewUserModal";
+
 
 export default function Authenticated({ header, children }) {
     const page = usePage();
     const user = page.props.auth.user;
     const conversations = page.props.conversations;
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
-    const [showNewUserModal, setShowNewUserModal] = useState(false);
+    // const [showNewUserModal, setShowNewUserModal] = useState(false);
     const { emit } = useEventBus();
 
     useEffect(() => {
-        conversations.forEach((conversation) => {
-            let channel = `message.group.${conversation.id}`;
-
-            if (conversation.is_user) {
-                channel = `message.user.${[
-                    parseInt(user.id),
-                    parseInt(conversation.id),
-                ]
-                .sort((a, b) => a - b)
-                .join("-")}`;
-            }
-
-           // console.log(`Subscribing to channel: ${channel}`);
-
-            Echo.private(channel)
-                .error((error) => {
-                    console.error(`Error subscribing to channel ${channel}:`, error);
-                })
-                .listen("SocketMessage", (e) => {
-                    console.log("SocketMessage event received:", e);
-                    const message = e.message;
-
-                    emit("message.created", message);
-
-                    if (message.sender_id === user.id) {
-                        return;
-                    }
-
-                    emit("newMessageNotification", {
-                        user: message.sender,
-                        group_id: message.group_id,
-                        message: 
-                            message.message ||
-                            `Shared ${
-                                message.attachments.length === 1
-                                ? "an attachment"
-                                : message.attachments.length + 
-                                " attachments"}`,
-                    });
+        const subscribeToChannel = (conversation) => {
+          let channel = `message.group.${conversation.id}`;
+      
+          if (conversation.is_user) {
+            channel = `message.user.${[
+              parseInt(user.id),
+              parseInt(conversation.id),
+            ]
+              .sort((a, b) => a - b)
+              .join("-")}`;
+          }
+      
+          Echo.private(channel)
+            .error((error) => {
+              console.error(`Error subscribing to channel ${channel}:`, error);
+            })
+            .listen("SocketMessage", (e) => {
+              const message = e.message;
+              emit("message.created", message);
+      
+              if (message.sender_id !== user.id) {
+                emit("newMessageNotification", {
+                  user: message.sender,
+                  group_id: message.group_id,
+                  message:
+                    message.message ||
+                    `Shared ${
+                      message.attachments.length === 1
+                        ? "an attachment"
+                        : message.attachments.length + " attachments"
+                    }`,
                 });
-
-                if(conversation.is_group) {
-                    Echo.private(`group.deleted.${conversation.id}`).stopListening('GroupDeleted');
-
-                    Echo.private(`group.deleted.${conversation.id}`)
-                    .listen("GroupDeleted", (e) => {
-                        // console.log("GroupDeleted", e);
-                        // debugger;
-                        emit("group.deleted", {id: e.id, name: e.name});
-                    })
-                    .error((e) => {
-                        console.error(e);
-                    });
-                }
-        });
-
-        return () => {
-            conversations.forEach((conversation) => {
-                let channel = `message.group.${conversation.id}`;
-
-                if (conversation.is_user) {
-                    channel = `message.user.${[
-                        parseInt(user.id),
-                        parseInt(conversation.id),
-                    ]
-                    .sort((a, b) => a - b)
-                    .join("-")}`;
-                }
-
-                console.log(`Leaving channel: ${channel}`);
-                Echo.leave(channel);
-
-                if(conversation.is_group){
-                    Echo.leave(`group.deleted.${conversation.id}`);
-                }
+              }
             });
+      
+          if (conversation.is_group) {
+            const groupChannel = `group.deleted.${conversation.id}`;
+            
+            Echo.private(groupChannel).stopListening("GroupDeleted");
+      
+            Echo.private(groupChannel)
+              .listen("GroupDeleted", (e) => {
+                emit("group.deleted", { id: e.id, name: e.name });
+              })
+              .error((e) => {
+                console.error(e);
+              });
+          }
         };
-    }, [conversations, user, emit]);
+      
+        conversations.forEach((conversation) => {
+          subscribeToChannel(conversation);
+        });
+      
+        // Cleanup function to stop listening on unmount or when conversations change
+        return () => {
+          conversations.forEach((conversation) => {
+            const channel = conversation.is_user
+              ? `message.user.${[parseInt(user.id), parseInt(conversation.id)]
+                  .sort((a, b) => a - b)
+                  .join("-")}`
+              : `message.group.${conversation.id}`;
+      
+            Echo.private(channel).stopListening("SocketMessage");
+      
+            if (conversation.is_group) {
+              Echo.private(`group.deleted.${conversation.id}`).stopListening(
+                "GroupDeleted"
+              );
+            }
+          });
+        };
+      }, [conversations, user]);
+      
 
     return (
         <>
@@ -123,7 +120,7 @@ export default function Authenticated({ header, children }) {
                         <div className="hidden sm:flex sm:items-center sm:ms-6">
                             <div className="flex ms-3 relative">
 
-                            {!user.is_admin && (
+                            {/* {!user.is_admin && (
                                
                               <PrimaryButton onClick={(ev) =>
                                setShowNewUserModal(true)}>
@@ -131,7 +128,7 @@ export default function Authenticated({ header, children }) {
                                 Add New User
                            
                               </PrimaryButton>      
-                            )}
+                            )} */}
 
 
                                 <Dropdown>
@@ -141,7 +138,7 @@ export default function Authenticated({ header, children }) {
                                                 type="button"
                                                 className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition ease-in-out duration-150"
                                             >
-                                                {user.name}
+                                                {/* {user.name} */}
 
                                                 <svg
                                                     className="ms-2 -me-0.5 h-4 w-4"
@@ -204,8 +201,8 @@ export default function Authenticated({ header, children }) {
 
                     <div className="pt-4 pb-1 border-t border-gray-200 dark:border-gray-600">
                         <div className="px-4">
-                            <div className="font-medium text-base text-gray-800 dark:text-gray-200">{user.name}</div>
-                            <div className="font-medium text-sm text-gray-500">{user.email}</div>
+                            {/* <div className="font-medium text-base text-gray-800 dark:text-gray-200">{user.name}</div> */}
+                            {/* <div className="font-medium text-sm text-gray-500">{user.email}</div> */}
                         </div>
 
                         <div className="mt-3 space-y-1">
@@ -229,8 +226,8 @@ export default function Authenticated({ header, children }) {
 
         <Toast/>
         <NewMessageNotification/>
-        <NewUserModal show={showNewUserModal} 
-        onClose={(ev) => setShowNewUserModal(false)}/>
+        {/* <NewUserModal show={showNewUserModal} 
+        onClose={(ev) => setShowNewUserModal(false)}/> */}
         </>
     );
 }

@@ -7,19 +7,24 @@ export default function Toast() {
     const {on} = useEventBus();
 
     useEffect(() => {
-        on('toast.show',(message) => {
-            const uuid = uuidv4();
-
-            setToasts((oldToasts) => [...oldToasts, {message, uuid}]);
-
-            setTimeout(() => {
-                setToasts((oldToasts) => oldToasts.filter((toast) => toast.uuid !== uuid)
-            );
-            }, 5000);
-        });
-
-  
-    }, [on]);
+        const handleToastShow = (message) => {
+          const uuid = uuidv4();
+      
+          setToasts((oldToasts) => [...oldToasts, { message, uuid }]);
+      
+          setTimeout(() => {
+            setToasts((oldToasts) => oldToasts.filter((toast) => toast.uuid !== uuid));
+          }, 5000);
+        };
+      
+        const unsubscribe = on('toast.show', handleToastShow);
+      
+        // Cleanup the event listener on unmount
+        return () => {
+          unsubscribe && unsubscribe();
+        };
+      }, []); // Empty array if `on` is stable, otherwise include it if necessary.
+      
 
     return (
 

@@ -51,19 +51,24 @@ const closeModal = () => {
 };
 
 useEffect(() => {
-    return on("GroupModal.show", (group) => {
-      
+    const handleShow = (group) => {
         setData({
             name: group.name,
             description: group.description,
             user_ids: group.users
                 .filter((u) => group.owner_id !== u.id)
                 .map((u) => u.id),
-
         });
         setGroup(group);
-    });
-}, [on]);
+    };
+
+    const unsubscribe = on("GroupModal.show", handleShow);
+
+    return () => {
+        unsubscribe(); // Clean up the event listener
+    };
+}, []); // Empty dependency array to ensure this runs only once
+
 
     return (
 <Modal show={show} onClose={closeModal}>

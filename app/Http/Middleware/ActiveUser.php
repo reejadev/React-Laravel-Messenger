@@ -1,4 +1,4 @@
-<--?php
+<?php
 
 namespace App\Http\Middleware;
 
@@ -6,7 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class AdminUser
+class ActiveUser
 {
     /**
      * Handle an incoming request.
@@ -15,8 +15,12 @@ class AdminUser
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if(!auth()->user()->is_admin){
-            abort(403, 'Unauthorized action.');
+
+        if(auth()->user()->blocked_at){
+            auth()->logout();
+            return redirect()
+            ->route('login')
+            ->with('errorMessage', 'Your account has been blocked.');
         }
         return $next($request);
     }

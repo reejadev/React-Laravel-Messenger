@@ -128,6 +128,7 @@ return inertia('Home',[
         // dd($conversation, $group);
     $message->delete();
 
+    $lastMessage = null;
     if($group) {
         $group = Group::find($group->id);
         $lastMessage = $group->lastMessage;

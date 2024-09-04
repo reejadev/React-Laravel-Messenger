@@ -1,0 +1,22 @@
+<x-mail::message>
+
+    Hello {{ $user->name}},
+
+    Your account has been created successfully.
+
+    **Here is your login information** <br>
+
+    Email:{{ $user->email}} <br>
+    Password: {{$password}}
+
+    Please login to the system and change your Password.
+
+
+    <x-mail::button url="{{ route('login') }}">
+        Click here to login
+    </x-mail::button>
+
+    Thank yoy, <br>
+    {{ config('app.name') }}
+
+</x-mail::message>

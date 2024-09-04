@@ -1,10 +1,13 @@
-<?php
+<--?php
 
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Mail\UserCreated;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Mail\UserRoleChanged;
+use App\Mail\UserBlockedUnblocked;
 
 class UserController extends Controller
 {
@@ -21,7 +24,9 @@ class UserController extends Controller
     $data['password'] = bcrypt($rawPassword);
     $data['email_verified_at'] = now();
 
-   User::create($data);
+   $user = User::create($data);
+
+   Mail::to($user)->send(new UserCreated($user, $rawPassword))
 
     return redirect()->back();
 
@@ -33,6 +38,8 @@ class UserController extends Controller
 
     $message = "User role was changed into" . ($user->is_admin? '"Admin"' : '"Regular User"');
 
+    Mail::to($user)->send(new UserRoleChanged($user));
+
     return response()->json(['message' => $message]);
     
   }
@@ -41,13 +48,15 @@ class UserController extends Controller
   {
       if($user->blocked_at) {
         $user->blocked_at = null;
-        $message = 'Your Account has been activated';
+        $message = 'User'.$user->name.'has been activated';
 
       } else {
         $user->blocked_at = now();
-        $message = 'Your Account has been blocked';
+        $message = 'User'.$user->name.'has been blocked';
       }
       $user->save();
+
+      Mail::to($user)->send(new UserBlockedUnblocked($user));
 
       return response()->json(['message'=> $message]);
   }

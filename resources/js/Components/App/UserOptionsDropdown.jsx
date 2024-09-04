@@ -9,9 +9,11 @@ import {
 } from "@heroicons/react/solid";
 import axios from 'axios';
 import { ArrowLongDownIcon, ArrowUpIcon, EllipsisVerticalIcon, ShieldExclamationIcon, UserCircleIcon } from "@heroicons/react/24/solid";
+import { useEventBus } from "@/EventBus";
 // import { route } from '@inertiajs/react';
 
 export default function UserOptionsDropdown({ conversation }) {
+    const {emit} = useEventBus();
     const changeUserRole = () => {
         console.log("Change user role");
         if (!conversation.is_user) {
@@ -21,6 +23,7 @@ export default function UserOptionsDropdown({ conversation }) {
         axios
             .post(route("user.changeRole", conversation.id))
             .then((res) => {
+               emit("toast.show", res.data.message);
                 console.log(res.data);
             })
             .catch((err) => {
@@ -36,6 +39,8 @@ export default function UserOptionsDropdown({ conversation }) {
         axios
             .post(route("user.blockUnblock", conversation.id))
             .then((res) => {
+                emit("toast.show", res.data.message);
+
                 console.log(res.data);
             })
             .catch((err) => {

@@ -56,7 +56,7 @@ const messageCreated = (message) => {
             }
             return u;
         });
-    });
+    }, []);
 };
 
 const messageDeleted = ({prevMessage}) => {

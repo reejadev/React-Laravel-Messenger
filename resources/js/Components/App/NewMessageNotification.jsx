@@ -8,17 +8,24 @@ export default function NewMessageNotification({}) {
     const {on} = useEventBus();
 
     useEffect(() => {
-        on("newMessageNotification",({message, user, group_id}) => {
-            const uuid = uuidv4();
-
-            setToasts((oldToasts) => [...oldToasts, {message, uuid,user, group_id}]);
-
-            setTimeout(() => {
-                setToasts((oldToasts) => oldToasts.filter((toast) => toast.uuid !== uuid)
-            );
-            }, 5000);
-        });
-    }, [on]);
+      const handleNewMessageNotification = ({ message, user, group_id }) => {
+        const uuid = uuidv4();
+    
+        setToasts((oldToasts) => [...oldToasts, { message, uuid, user, group_id }]);
+    
+        setTimeout(() => {
+          setToasts((oldToasts) => oldToasts.filter((toast) => toast.uuid !== uuid));
+        }, 5000);
+      };
+    
+      const unsubscribe = on("newMessageNotification", handleNewMessageNotification);
+    
+      // Cleanup the event listener on component unmount
+      return () => {
+        unsubscribe && unsubscribe();
+      };
+    }, []); // Empty dependency array if `on` is stable
+    
 
     return (
 
